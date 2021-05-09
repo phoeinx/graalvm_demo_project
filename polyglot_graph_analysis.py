@@ -35,18 +35,7 @@ def parse_graph_from_file(filename):
 
     return node_list, edge_list
 
-ruby_array = polyglot.eval(language="ruby", string=" lambda { |array| Array(array)}")
-
-filename = sys.argv[-1]
-
-if filename == sys.argv[0]:
-    print("No filename given, generating random sample graph.")
-    node_list, edge_list = generate_random_sample_graph(20, 1/3)
-else:
-    print("Parsing graph from: " + filename)
-    node_list, edge_list = parse_graph_from_file(filename)
-
-edge_list = ruby_array(edge_list).flatten(1)
+ruby_array = polyglot.eval(language="ruby", string="lambda {|array| Array(array)}")
 
 analyze_network = polyglot.eval(string="""function(nodes, edges) {
     require(network)
@@ -65,4 +54,20 @@ analyze_network = polyglot.eval(string="""function(nodes, edges) {
     grDevices:::dev.off()
 }""", language="R")
 
-analyze_network(node_list, edge_list)
+def main(argv):
+    filename = sys.argv[-1]
+
+    if filename == sys.argv[0]:
+        print("No filename given, generating random sample graph.")
+        node_list, edge_list = generate_random_sample_graph(20, 1/3)
+    else:
+        print("Parsing graph from: " + filename)
+        node_list, edge_list = parse_graph_from_file(filename)
+    
+    edge_list = ruby_array(edge_list).flatten(1)
+    
+    analyze_network(node_list, edge_list)
+
+if __name__ == "__main__":
+    main(sys.argv)
+
